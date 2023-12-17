@@ -1,12 +1,13 @@
-import DataProvider from "./context/DataProvider";
-import Wrapper from "./components/Wrapper";
+import Wrapper from "./components/Wrapper-1";
 import "./App.css";
+import Wrapper2 from "./components/Wrapper-2";
 
 function App() {
   return (
-    <DataProvider>
+    <>
       <Wrapper />
-    </DataProvider>
+      <Wrapper2 />
+    </>
   );
 }
 

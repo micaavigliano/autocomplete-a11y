@@ -2,11 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 interface AutocompleteProps<T> {
   options: T[];
-  labelKey: keyof T;
-}
-
-interface KeyboardEvent {
-  key: string;
+  labelKey: string;
 }
 
 // eslint-disable-next-line
@@ -31,9 +27,24 @@ const Autocomplete = <T extends Record<string, any>>({
   };
 
   const handleFocus = useCallback(
-    (e: KeyboardEvent) => {
-      if (inputRef && optionRef.current?.children) {
-        if (e.key === "ArrowDown") {
+    (e: Event) => {
+      if (
+        inputRef &&
+        optionRef.current?.children &&
+        e instanceof KeyboardEvent
+      ) {
+        const keyboardEvent = e;
+        if (
+          keyboardEvent.key === "ArrowDown" &&
+          (keyboardEvent.metaKey || keyboardEvent.ctrlKey)
+        ) {
+          setActiveIndex(1);
+        } else if (
+          keyboardEvent.key === "arrowUp" &&
+          (keyboardEvent.metaKey || keyboardEvent.ctrlKey)
+        ) {
+          setActiveIndex(list.length);
+        } else if (keyboardEvent.key === "ArrowDown") {
           setActiveIndex((prev) => {
             if (prev < list.length) {
               return prev + 1;
@@ -41,14 +52,7 @@ const Autocomplete = <T extends Record<string, any>>({
               return 1;
             }
           });
-          const childElement = optionRef.current?.children[activeIndex];
-          if (childElement instanceof HTMLElement) {
-            const textContent = childElement.textContent;
-            if (textContent !== null) {
-              setInputValue(textContent);
-            }
-          }
-        } else if (e.key === "ArrowUp") {
+        } else if (keyboardEvent.key === "ArrowUp") {
           setActiveIndex((prev) => {
             if (prev > 1) {
               return prev - 1;
@@ -56,17 +60,15 @@ const Autocomplete = <T extends Record<string, any>>({
               return list.length;
             }
           });
-          const childElement = optionRef.current?.children[activeIndex];
-          if (childElement instanceof HTMLElement) {
-            const textContent = childElement.textContent;
-            if (textContent !== null) {
-              setInputValue(textContent);
-            }
-          }
+        } else if (
+          keyboardEvent.key === "Escape" ||
+          keyboardEvent.key === "Enter"
+        ) {
+          setList([]);
         }
       }
     },
-    [activeIndex, list]
+    [list]
   );
 
   const handleListItemClick = (index: number) => {
@@ -94,6 +96,19 @@ const Autocomplete = <T extends Record<string, any>>({
     };
   }, [handleFocus]);
 
+  useEffect(() => {
+    if (optionRef.current?.children) {
+      const currentIdx = activeIndex;
+      const childElement = optionRef.current?.children[currentIdx - 1];
+      if (childElement instanceof HTMLElement) {
+        const textContent = childElement.textContent;
+        if (textContent !== null) {
+          setInputValue(textContent);
+        }
+      }
+    }
+  }, [activeIndex]);
+
   return (
     <div className="relative">
       <input
@@ -104,6 +119,8 @@ const Autocomplete = <T extends Record<string, any>>({
         aria-autocomplete="list"
         value={inputValue!}
         onChange={handleInput}
+        aria-controls="autocomplete-input"
+        aria-expanded={list.length > 0 ? true : false}
       />
       <ul role="listbox" className="bg-red-200 absolute w-full" ref={optionRef}>
         {list.length > 0 &&
