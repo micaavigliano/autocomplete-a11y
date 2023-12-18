@@ -85,7 +85,7 @@ const Autocomplete = <T extends Record<string, any>>({
     if (e.key === "Enter") {
       handleListItemClick(index);
       setList([]);
-      setInputValue("")
+      setInputValue("");
     }
   };
 
@@ -116,11 +116,14 @@ const Autocomplete = <T extends Record<string, any>>({
           } else if (offsetTop + itemHeight > scrollTop + containerHeight) {
             container.scrollTop = offsetTop + itemHeight - containerHeight;
           }
-        
         }
       }
     }
   }, [activeIndex]);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   return (
     <div className="relative">
@@ -135,7 +138,11 @@ const Autocomplete = <T extends Record<string, any>>({
         aria-controls="autocomplete-input"
         aria-expanded={list.length > 0 ? true : false}
       />
-      <ul role="listbox" className="absolute w-full h-64 overflow-auto" ref={optionRef}>
+      <ul
+        role="listbox"
+        className="absolute w-full h-64 overflow-auto"
+        ref={optionRef}
+      >
         {list.length > 0 &&
           list.map((item, index) => (
             <li
@@ -144,8 +151,8 @@ const Autocomplete = <T extends Record<string, any>>({
               tabIndex={index + 1 === activeIndex ? 0 : -1}
               onClick={() => handleListItemClick(index)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleKeyDown(e, index)
+                if (e.key === "Enter") {
+                  handleKeyDown(e, index);
                 }
               }}
               className={`${
