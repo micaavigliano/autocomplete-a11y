@@ -85,6 +85,7 @@ const Autocomplete = <T extends Record<string, any>>({
     if (e.key === "Enter") {
       handleListItemClick(index);
       setList([]);
+      setInputValue("")
     }
   };
 
@@ -104,6 +105,18 @@ const Autocomplete = <T extends Record<string, any>>({
         const textContent = childElement.textContent;
         if (textContent !== null) {
           setInputValue(textContent);
+          const container = optionRef.current;
+          const itemHeight = childElement.offsetHeight;
+          const scrollTop = container.scrollTop;
+          const offsetTop = childElement.offsetTop;
+          const containerHeight = container.clientHeight;
+
+          if (offsetTop < scrollTop) {
+            container.scrollTop = offsetTop;
+          } else if (offsetTop + itemHeight > scrollTop + containerHeight) {
+            container.scrollTop = offsetTop + itemHeight - containerHeight;
+          }
+        
         }
       }
     }
@@ -122,7 +135,7 @@ const Autocomplete = <T extends Record<string, any>>({
         aria-controls="autocomplete-input"
         aria-expanded={list.length > 0 ? true : false}
       />
-      <ul role="listbox" className="bg-red-200 absolute w-full" ref={optionRef}>
+      <ul role="listbox" className="absolute w-full h-64 overflow-auto" ref={optionRef}>
         {list.length > 0 &&
           list.map((item, index) => (
             <li
@@ -130,7 +143,11 @@ const Autocomplete = <T extends Record<string, any>>({
               role="option"
               tabIndex={index + 1 === activeIndex ? 0 : -1}
               onClick={() => handleListItemClick(index)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleKeyDown(e, index)
+                }
+              }}
               className={`${
                 index + 1 === activeIndex
                   ? "bg-blue-500 text-white"
