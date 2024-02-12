@@ -38,12 +38,12 @@ const Autocomplete = <T extends Record<string, any>>({
           keyboardEvent.key === "ArrowDown" &&
           (keyboardEvent.metaKey || keyboardEvent.ctrlKey)
         ) {
-          setActiveIndex(1);
+          setActiveIndex(list.length);
         } else if (
-          keyboardEvent.key === "arrowUp" &&
+          keyboardEvent.key === "ArrowUp" &&
           (keyboardEvent.metaKey || keyboardEvent.ctrlKey)
         ) {
-          setActiveIndex(list.length);
+          setActiveIndex(1);
         } else if (keyboardEvent.key === "ArrowDown") {
           setActiveIndex((prev) => {
             if (prev < list.length) {
@@ -70,6 +70,7 @@ const Autocomplete = <T extends Record<string, any>>({
     },
     [list]
   );
+  
 
   const handleListItemClick = (index: number) => {
     const selectedValue = String(list[index][labelKey]);
@@ -140,7 +141,7 @@ const Autocomplete = <T extends Record<string, any>>({
       />
       <ul
         role="listbox"
-        className="absolute w-full h-64 overflow-auto"
+        className={`absolute w-full h-64 overflow-auto outline border-blue-500 ${list.length === 0 ? 'hidden' : ''}`}
         ref={optionRef}
       >
         {list.length > 0 &&
@@ -157,7 +158,7 @@ const Autocomplete = <T extends Record<string, any>>({
               }}
               className={`${
                 index + 1 === activeIndex
-                  ? "bg-blue-500 text-white"
+                  ? "bg-blue-500 text-white outline outline-2"
                   : "bg-white text-black"
               } hover:bg-gray-200 focus:outline-none p-0`}
             >
